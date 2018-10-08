@@ -59,6 +59,7 @@
             <label>Новый тред <span class="gold">(ctrl+enter)</span>:</label>
             <input placeholder="заголовок" type="text" v-model="new_thread_title" @keyup.ctrl.enter="add_thread()">
             <textarea placeholder="текст" v-model="new_thread_body" @keyup.ctrl.enter="add_thread()"></textarea>
+            <button @click="add_thread()">Создать</button>
         </div>
         
     </div>

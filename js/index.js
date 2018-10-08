@@ -30,11 +30,6 @@ var app = new Vue({
                 result = data;
             });
             
-            for(i=0; i<result.length; i++) {
-//                result[i].comments = this.count_comments(result[i].id);
-                result[i].comments = 333;
-            }
-            
             this.database = result;
         },
         load_thread(id) {
@@ -114,7 +109,6 @@ var app = new Vue({
         delete_thread(thread_id) {
             this.busy = true;
             
-            
             for(i=this.database.length-1; i>=0; i--) {
                 if(this.database[i].parent == thread_id) {
                     var target = this.find_by_id(this.database[i].id);
@@ -134,7 +128,7 @@ var app = new Vue({
             var that = this;
             $.ajax({
                 type: "POST",
-                url: "/data/saver.php",
+                url: "/data/app.php",
                 cache: false,
                 async: false,
                 data: {
@@ -144,12 +138,6 @@ var app = new Vue({
             });
             this.busy = false;
         }
-    },
-    watch: {
-//        database: function() {
-//            this.save_database();
-//            this.load_database();
-//        }
     },
     mounted: function() {
         this.load_database();
@@ -161,7 +149,7 @@ var app = new Vue({
             if (that.location > 0) {
                 that.load_comments(that.location);
             }
-        }, 500);
+        }, 1000);
     }
 });
 
