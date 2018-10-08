@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Hekko</title>
+    <link rel="stylesheet/less" type="text/css" href="../style/style.less" />
+    <script src="../js/less.min.js"></script>
+    <script src="../js/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+   
+    <div id="app">
+            <div class="container">
+                <h1 class="gold" title="last update: 08.10.2018">hekko IB</h1>
+                <div v-if="debug">
+                    <p>database: {{database}}</p>
+                    <hr>
+                    <p>thread: {{thread}}</p>
+                    <hr>
+                    <p>comments: {{comments}}</p>
+                </div>
+            </div>
+
+            <div class="container" v-if="location == 0">
+                <h2>Треды:</h2>
+                <div class="thread_list" v-for="thread in database" v-if="thread.parent == 0" >
+                    <p>
+                        <span class="gold" @click="load_thread(thread.id)">#{{thread.id}}: {{thread.title}} ({{count_comments(thread.id)}})</span>
+                        <span class="right" @click="delete_thread(thread.id)">&#10006;</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="container" v-if="location > 0">
+                <div class="thread">
+                    <span @click="load_thread(0)">&#8592;</span>
+                    <h2>{{thread.title}}</h2>
+                    <p>{{thread.body}}</p>
+                </div>
+
+                <hr v-if="comments.length > 0">
+                <p v-if="comments.length > 0">Комментарии:</p>
+                <div class="comment" v-for="comment in comments">
+                    <p>
+                        #{{comment.id}} {{comment.body}} 
+                        <span class="right" @click="delete_comment(comment.id, thread.id)">&#10006;</span>
+                    </p>
+                </div>
+                
+                <hr>
+                <label>Новый комментарий <span class="gold">(ctrl+enter)</span>:</label>
+                <textarea v-model="new_comment" @keyup.ctrl.enter="add_comment(thread.id)"></textarea>
+            </div>
+            
+            <div class="container" v-if="location == 0">
+                <label>Новый тред <span class="gold">(ctrl+enter)</span>:</label>
+                <input placeholder="заголовок" type="text" v-model="new_thread_title" @keyup.ctrl.enter="add_thread()">
+                <textarea placeholder="текст" v-model="new_thread_body" @keyup.ctrl.enter="add_thread()"></textarea>
+            </div>
+    </div>
+    
+    <script src="../js/vue.min.js"></script>
+    <script src="../js/index.js"></script>
+</body>
+</html>
