@@ -12,7 +12,7 @@
     <div id="app">
        
         <div class="container">
-            <h1 class="gold" title="last update: 08.10.2018" @click="debug = !debug">hekko IB</h1>
+            <h1 class="accent" title="last update: 09.10.2018" @click="debug = !debug">hekko IB</h1>
             <div v-if="debug" class="debug">
                 <p>location: {{location}}</p>
                 <hr>
@@ -29,7 +29,7 @@
             <h2>Треды:</h2>
             <div class="threads" v-for="thread in database" v-if="thread.parent == 0" >
                 <p>
-                    <a :href="'#'+thread.id" class="gold" @click="load_thread(thread.id)">#{{thread.id}}: {{thread.title}} ({{count_comments(thread.id)}})</a>
+                    <a :href="'#'+thread.id" class="accent" @click="load_thread(thread.id)">#{{thread.id}}: {{thread.title}} ({{count_comments(thread.id)}})</a>
                     <span class="right" @click="delete_thread(thread.id)">&#10006;</span>
                 </p>
             </div>
@@ -40,7 +40,7 @@
         <div class="container" v-if="!thread">
             <p>Такого треда не существует</p>
             <br>
-            <a href="/" class="gold">Вернуться назад</a>
+            <a href="/" class="accent">Вернуться назад</a>
         </div>
         
         <div class="container" v-if="location > 0 && thread">
@@ -57,14 +57,14 @@
             <hr>
             <div class="comment" v-for="comment in comments">
                 <p>
-                    #{{comment.id}} <span class="gold">{{comment.title}}</span>: {{comment.body}} 
+                    #{{comment.id}} <span class="accent">{{comment.title}}</span>: {{comment.body}} 
                     <span class="right" @click="delete_comment(comment.id, thread.id)">&#10006;</span>
                 </p>
             </div>
         </div>
 
         <div class="container" v-if="location > 0 && thread">
-            <label>Новый комментарий <span class="gold">(ctrl+enter)</span>:</label>
+            <label>Новый комментарий <span class="accent">(ctrl+enter)</span>:</label>
             <input placeholder="подпись" type="text" v-model="new_comment_title" @keyup.ctrl.enter="add_comment(thread.id)">
             <textarea placeholder="текст" v-model="new_comment_body" @keyup.ctrl.enter="add_comment(thread.id)"></textarea>
             <button @click="add_comment(thread.id)">Добавить</button>
@@ -75,7 +75,7 @@
            
             <form id="new_thread_form" action="/app/app.php" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add_thread">
-                <label>Новый тред form <span class="gold">(ctrl+enter)</span>:</label>
+                <label>Новый тред form <span class="accent">(ctrl+enter)</span>:</label>
                 <input placeholder="заголовок" type="text" name="title">
                 <textarea placeholder="текст" name="body"></textarea>
                 
@@ -83,7 +83,7 @@
                 <input type="file" name="img" id="file" class="inputfile">
                 <label for="file" class="btn-main btn-light">Выбери файл</label>
                 
-                <input type="submit" value="Создать">
+                <button type="submit">Создать</button>
             </form>
         </div>
         
