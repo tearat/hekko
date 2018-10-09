@@ -12,8 +12,10 @@
     <div id="app">
        
         <div class="container">
-            <h1 class="gold" title="last update: 08.10.2018">hekko IB</h1>
+            <h1 class="gold" title="last update: 08.10.2018" @click="debug = !debug">hekko IB</h1>
             <div v-if="debug" class="debug">
+                <p>location: {{location}}</p>
+                <hr>
                 <p>database: {{database}}</p>
                 <hr>
                 <p>thread: {{thread}}</p>
@@ -22,44 +24,67 @@
             </div>
         </div>
 
+        <!-- СПИСОК ТРЕДОВ -->
         <div class="container" v-if="location == 0 && database.length > 0">
             <h2>Треды:</h2>
             <div class="threads" v-for="thread in database" v-if="thread.parent == 0" >
                 <p>
-                    <span class="gold" @click="load_thread(thread.id)">#{{thread.id}}: {{thread.title}} ({{count_comments(thread.id)}})</span>
+                    <a :href="'#'+thread.id" class="gold" @click="load_thread(thread.id)">#{{thread.id}}: {{thread.title}} ({{count_comments(thread.id)}})</a>
                     <span class="right" @click="delete_thread(thread.id)">&#10006;</span>
                 </p>
             </div>
         </div>
 
-        <div class="container" v-if="location > 0">
-            <div class="thread">
+        <!-- ТРЕД -->
+        
+        <div class="container" v-if="!thread">
+            <p>Такого треда не существует</p>
+            <br>
+            <a href="/" class="gold">Вернуться назад</a>
+        </div>
+        
+        <div class="container" v-if="location > 0 && thread">
+            <div class="thread" v-if="thread">
                 <span @click="load_thread(0)">&#8592;</span>
+                <a :href="thread.img" target="_blank" v-if="thread.img != 'no'"><img :src="thread.img"></a>
                 <h2>{{thread.title}}</h2>
                 <p>{{thread.body}}</p>
             </div>
+        </div>
 
-            <hr v-if="comments.length > 0">
-            <p v-if="comments.length > 0">Комментарии:</p>
+        <div class="container" v-if="location > 0 && comments.length > 0 && thread">
+            <h2 v-if="comments.length > 0">Комментарии:</h2>
+            <hr>
             <div class="comment" v-for="comment in comments">
                 <p>
                     #{{comment.id}} <span class="gold">{{comment.title}}</span>: {{comment.body}} 
                     <span class="right" @click="delete_comment(comment.id, thread.id)">&#10006;</span>
                 </p>
             </div>
+        </div>
 
-            <hr>
+        <div class="container" v-if="location > 0 && thread">
             <label>Новый комментарий <span class="gold">(ctrl+enter)</span>:</label>
             <input placeholder="подпись" type="text" v-model="new_comment_title" @keyup.ctrl.enter="add_comment(thread.id)">
             <textarea placeholder="текст" v-model="new_comment_body" @keyup.ctrl.enter="add_comment(thread.id)"></textarea>
             <button @click="add_comment(thread.id)">Добавить</button>
         </div>
 
-        <div class="container" v-if="location == 0">
-            <label>Новый тред <span class="gold">(ctrl+enter)</span>:</label>
-            <input placeholder="заголовок" type="text" v-model="new_thread_title" @keyup.ctrl.enter="add_thread()">
-            <textarea placeholder="текст" v-model="new_thread_body" @keyup.ctrl.enter="add_thread()"></textarea>
-            <button @click="add_thread()">Создать</button>
+        <!-- НОВЫЙ ТРЕД -->
+        <div class="container" v-show="location == 0">
+           
+            <form id="new_thread_form" action="/app/app.php" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="add_thread">
+                <label>Новый тред form <span class="gold">(ctrl+enter)</span>:</label>
+                <input placeholder="заголовок" type="text" name="title">
+                <textarea placeholder="текст" name="body"></textarea>
+                
+                <label for="file">Картинка</label>
+                <input type="file" name="img" id="file" class="inputfile">
+                <label for="file" class="btn-main btn-light">Выбери файл</label>
+                
+                <input type="submit" value="Создать">
+            </form>
         </div>
         
     </div>
@@ -68,3 +93,24 @@
     <script src="../js/index.js"></script>
 </body>
 </html>
+
+
+<script>
+    
+    var input = document.querySelectorAll( '.inputfile' )[0];
+    var label	 = input.nextElementSibling;
+    var labelVal = label.innerHTML;
+
+    input.addEventListener( 'change', function( e )
+    {
+        var fileName = '';
+        fileName = e.target.value.split( '\\' ).pop();
+
+        if( fileName ) {
+            label.innerHTML = "выбрано: " + fileName;
+        }
+        else {
+            label.innerHTML = labelVal;
+        }
+    });
+</script>

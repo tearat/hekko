@@ -1,9 +1,11 @@
+@import "variables";
+
 * {
     font-family: Verdana;
 }
 
 body {
-    background-color: #050505;
+    background-color: @black;
     margin: 0;
     padding: 0;
 }
@@ -14,7 +16,9 @@ body {
 .right {
     float: right;
 }
-
+a {
+    text-decoration: none;
+}
 
 
 #app {
@@ -25,7 +29,7 @@ body {
     }
     
     .container {
-        color: #eee;
+        color: @white;
         max-width: 800px;
         margin: 10px auto;
         padding: 20px;
@@ -46,10 +50,10 @@ body {
         padding-bottom: 4px;
         padding-right: 8px;
         &:hover {
-            background-color: #333;
-            cursor: pointer;
+//            background-color: @grey;
+//            cursor: pointer;
         }
-        span {
+        a, span {
             cursor: pointer;
             &:hover {
                 text-shadow: 0 0 25px gold;
@@ -58,12 +62,16 @@ body {
     }
     
     .thread {
+        img {
+            width: 300px;
+            margin-bottom: 10px;
+        }
         span {
             font-size: 20px;
             float: right;
             padding: 4px 8px;
             &:hover {
-                background-color: #777;
+                background-color: @light_grey;
                 cursor: pointer;
             }
         }
@@ -77,15 +85,15 @@ body {
         padding-bottom: 4px;
         padding-right: 8px;
         &:hover {
-            background-color: #333;
+            background-color: @grey;
             cursor: pointer;
         }
     }
     
     input,textarea,button {
         display: block;
-        background-color: #050505;
-        color: #eee;
+        background-color: @black;
+        color: @white;
         margin-top: 10px;
         width: 100%;
         border: none;
@@ -97,7 +105,29 @@ body {
     button {
         padding-top: 10px 0;
         &:hover {
-            background-color: #333;
+            background-color: @grey;
+            cursor: pointer;
+        }
+    }
+    .inputfile {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+        cursor: pointer;
+    }
+
+    .inputfile + label {
+        font-size: 14px;
+        margin-top: 10px;
+        color: white;
+        background-color: @grey;
+        display: inline-block;
+        padding: 5px 10px;
+        &:hover {
+            background-color: @light_grey;
             cursor: pointer;
         }
     }

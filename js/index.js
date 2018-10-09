@@ -1,6 +1,7 @@
 var app = new Vue({
     el: "#app",
     data: {
+        endpoint: "/app/app.php",
         debug: false,
         busy: false,
         location: 0,
@@ -19,24 +20,33 @@ var app = new Vue({
                     return i;
                 }
             }
+            return false;
         },
         load_database: function() {
+            var that = this;
             var result = [];
             $.ajax({
-                url: "/data/database.json",
+                url: that.endpoint+"?action=load",
                 cache: false,
                 async: false,
             }).done(function (data) {
-                result = data;
+                result = JSON.parse(data);
             });
             
-            this.database = result;
+//            function compare_updates(a,b) {
+//                return a.updated - b.updated;
+//            }
+//            
+//            result.sort(compare_updates);
+            
+            that.database = result;
         },
         load_thread(id) {
             this.location = id;
             var target = this.find_by_id(id);
             this.thread = this.database[target];
             this.load_comments(id);
+            
         },
         load_comments(id) {
             this.comments = [];
@@ -71,30 +81,14 @@ var app = new Vue({
                 });
                 this.new_comment_title = "";
                 this.new_comment_body = "";
+                
+                // update time adding
+                var target = this.find_by_id(parent);
+                var unix_time = Math.floor( new Date().getTime()/1000 );
+                this.database[target].updated = unix_time;
+                
                 this.save_database();
                 this.load_comments(parent);
-            }
-            this.busy = false;
-        },
-        add_thread() {
-            this.busy = true;
-            var new_id;
-            if(this.database.length == 0) {
-                new_id = 1;
-            } else {
-                new_id = this.database[this.database.length-1].id+1;
-            }
-            if( (this.new_thread_title != "") && (this.new_thread_body != "") ) {
-                this.database.push({
-                    id: new_id,
-                    title: this.new_thread_title,
-                    body: this.new_thread_body,
-                    parent: 0
-                });
-                this.new_thread_title = "";
-                this.new_thread_body = "";
-                this.save_database();
-                this.load_database();
             }
             this.busy = false;
         },
@@ -128,7 +122,7 @@ var app = new Vue({
             var that = this;
             $.ajax({
                 type: "POST",
-                url: "/data/app.php",
+                url: that.endpoint,
                 cache: false,
                 async: false,
                 data: {
@@ -141,6 +135,11 @@ var app = new Vue({
     },
     mounted: function() {
         this.load_database();
+        if ( location.hash.substr(1) != "" ) {
+            let id = location.hash.substr(1);
+            this.location = id;
+            this.load_thread(id);
+        }
         var that = this;
         setInterval(function(){ 
             if (!that.busy) {
@@ -157,5 +156,6 @@ document.onkeydown = function(evt) {
     evt = evt || window.event;
     if (evt.keyCode == 27) {
         app.location = 0;
+        location = "/";
     }
 };
