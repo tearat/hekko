@@ -11,31 +11,60 @@
    
     <div id="app">
        
+        <!-- HEADER -->
+        
         <div class="container">
-            <h1 class="accent" title="last update: 09.10.2018" @click="debug = !debug">hekko IB</h1>
+           
+            <span class="right btn" @click="debug = !debug" v-if="admin">&#128269;</span>
+            <a href="/"><h1 class="accent" title="last update: 09.10.2018">hekko IB</h1></a>
             <div v-if="debug" class="debug">
                 <p>location: {{location}}</p>
                 <hr>
                 <p>database: {{database}}</p>
-                <hr>
-                <p>thread: {{thread}}</p>
-                <hr>
-                <p>comments: {{comments}}</p>
             </div>
+            
         </div>
 
-        <!-- СПИСОК ТРЕДОВ -->
-        <div class="container" v-if="location == 0 && database.length > 0">
+        <!-- THREADS LIST -->
+        
+        <div class="container" v-if="location == 0 && count_comments(0) > 0">
+           
             <h2>Треды:</h2>
+            
             <div class="threads" v-for="thread in database" v-if="thread.parent == 0" >
-                <p>
-                    <a :href="'#'+thread.id" class="accent" @click="load_thread(thread.id)">#{{thread.id}}: {{thread.title}} ({{count_comments(thread.id)}})</a>
-                    <span class="right" @click="delete_thread(thread.id)">&#10006;</span>
-                </p>
+                <div>
+                    <a :href="'/'+thread.id" class="accent" @click="load_thread(thread.id)">
+                        #{{thread.id}}: {{thread.title}} ({{count_comments(thread.id)}} comm.)
+                    </a>
+                    <form action="/app/app.php" method="post" v-if="admin">
+                        <input type="hidden" name="action" value="delete_thread">
+                        <input type="hidden" name="id" :value="thread.id">
+                        <button type="submit" class="invisible">
+                            <span class="right btn">&#10006;</span>
+                        </button>
+                    </form>
+                </div>
             </div>
+            
         </div>
 
-        <!-- ТРЕД -->
+        
+        <!-- THREAD -->
+        
+        <div class="container" v-if="location > 0 && thread">
+           
+            <div class="thread" v-if="thread">
+                <a href="/" class="right btn">&#8592;</a>
+                <a :href="thread.img" target="_blank" v-if="thread.img != 'no'">
+                    <img :src="thread.img">
+                </a>
+                <h2>{{thread.title}}</h2>
+                <p>{{thread.body}}</p>
+            </div>
+            
+        </div>
+        
+        <!-- THREAD ERROR -->
         
         <div class="container" v-if="!thread">
             <p>Такого треда не существует</p>
@@ -43,40 +72,53 @@
             <a href="/" class="accent">Вернуться назад</a>
         </div>
         
-        <div class="container" v-if="location > 0 && thread">
-            <div class="thread" v-if="thread">
-                <span @click="load_thread(0)">&#8592;</span>
-                <a :href="thread.img" target="_blank" v-if="thread.img != 'no'"><img :src="thread.img"></a>
-                <h2>{{thread.title}}</h2>
-                <p>{{thread.body}}</p>
-            </div>
-        </div>
+        <!-- COMMENTS -->
 
-        <div class="container" v-if="location > 0 && comments.length > 0 && thread">
-            <h2 v-if="comments.length > 0">Комментарии:</h2>
-            <hr>
-            <div class="comment" v-for="comment in comments">
-                <p>
-                    #{{comment.id}} <span class="accent">{{comment.title}}</span>: {{comment.body}} 
-                    <span class="right" @click="delete_comment(comment.id, thread.id)">&#10006;</span>
-                </p>
-            </div>
-        </div>
-
-        <div class="container" v-if="location > 0 && thread">
-            <label>Новый комментарий <span class="accent">(ctrl+enter)</span>:</label>
-            <input placeholder="подпись" type="text" v-model="new_comment_title" @keyup.ctrl.enter="add_comment(thread.id)">
-            <textarea placeholder="текст" v-model="new_comment_body" @keyup.ctrl.enter="add_comment(thread.id)"></textarea>
-            <button @click="add_comment(thread.id)">Добавить</button>
-        </div>
-
-        <!-- НОВЫЙ ТРЕД -->
-        <div class="container" v-show="location == 0">
+        <div class="container" v-if="location > 0 && thread && count_comments(location) > 0">
            
-            <form id="new_thread_form" action="/app/app.php" method="post" enctype="multipart/form-data">
+            <h2>Комментарии:</h2>
+            
+            <div class="comment" v-for="comment in database" v-if="comment.parent == location">
+                #{{comment.id}} <span class="accent">{{comment.title}}</span>: {{comment.body}} 
+                <form action="/app/app.php" method="post" v-if="admin">
+                    <input type="hidden" name="action" value="delete_comment">
+                    <input type="hidden" name="id" :value="comment.id">
+                    <input type="hidden" name="location" :value="comment.parent">
+                    <button type="submit" class="invisible">
+                        <span class="right btn">&#10006;</span>
+                    </button>
+                </form>
+            </div>
+            
+        </div>
+
+        <!-- ADD COMMENT -->
+       
+        <div class="container" v-if="location > 0 && thread">
+           
+            <form action="/app/app.php" method="post">
+                <input type="hidden" name="action" value="add_comment">
+                <input type="hidden" name="location" :value="thread.id">
+                <label>Новый комментарий <span class="accent">(ctrl+enter)</span>:</label>
+                <input placeholder="подпись" type="text" name="title">
+                <textarea placeholder="текст" name="body"></textarea>
+                <button type="submit">Добавить</button>
+            </form>
+            
+        </div>
+
+        <!-- ADD THREAD BUTTON -->
+       
+<!--        <button v-if="location == 0" @click="new_thread = !new_thread">Новый тред</button>-->
+       
+        <!-- ADD THREAD -->
+        
+        <div class="container" v-show="location == 0 && new_thread == !true">
+           
+            <form action="/app/app.php" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add_thread">
-                <label>Новый тред form <span class="accent">(ctrl+enter)</span>:</label>
-                <input placeholder="заголовок" type="text" name="title">
+                <label>Новый тред:</label>
+                <input placeholder="заголовок" type="text" name="title" autocomplete="off">
                 <textarea placeholder="текст" name="body"></textarea>
                 
                 <label for="file">Картинка</label>
@@ -89,6 +131,7 @@
         
     </div>
     
+    <script>var thread_id = <?php echo $location; ?>;    </script>
     <script src="../js/vue.min.js"></script>
     <script src="../js/index.js"></script>
 </body>
@@ -96,7 +139,6 @@
 
 
 <script>
-    
     var input = document.querySelectorAll( '.inputfile' )[0];
     var label	 = input.nextElementSibling;
     var labelVal = label.innerHTML;
