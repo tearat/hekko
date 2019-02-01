@@ -79,7 +79,11 @@
             <h2>Комментарии:</h2>
             
             <div class="comment" v-for="comment in database" v-if="comment.parent == location">
-                #{{comment.id}} <span class="accent">{{comment.title}}</span>: {{comment.body}} 
+                <span class="accent">#{{comment.id}}</span>
+                <a :href="comment.img" target="_blank" v-if="comment.img != 'no'">
+                    <img :src="comment.img">
+                </a>
+                {{comment.body}} 
                 <form action="/app/app.php" method="post" v-if="admin">
                     <input type="hidden" name="action" value="delete_comment">
                     <input type="hidden" name="id" :value="comment.id">
@@ -96,24 +100,25 @@
        
         <div class="container" v-if="location > 0 && thread">
            
-            <form action="/app/app.php" method="post">
+            <form action="/app/app.php" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add_comment">
                 <input type="hidden" name="location" :value="thread.id">
                 <label>Новый комментарий <span class="accent">(ctrl+enter)</span>:</label>
-                <input placeholder="подпись" type="text" name="title">
+<!--                <input placeholder="подпись" type="text" name="title">-->
                 <textarea placeholder="текст" name="body"></textarea>
+                
+                <label for="file">Картинка</label>
+                <input type="file" name="img" id="file" class="inputfile">
+                <label for="file" class="btn-main btn-light">Выбери файл</label>
+                
                 <button type="submit">Добавить</button>
             </form>
             
         </div>
 
-        <!-- ADD THREAD BUTTON -->
-       
-<!--        <button v-if="location == 0" @click="new_thread = !new_thread">Новый тред</button>-->
-       
         <!-- ADD THREAD -->
         
-        <div class="container" v-show="location == 0 && new_thread == !true">
+        <div class="container" v-show="location == 0">
            
             <form action="/app/app.php" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add_thread">
@@ -131,7 +136,7 @@
         
     </div>
     
-    <script>var thread_id = <?php echo $location; ?>;    </script>
+    <script>var thread_id = <?php echo $location; ?>;</script>
     <script src="../js/vue.min.js"></script>
     <script src="../js/index.js"></script>
 </body>

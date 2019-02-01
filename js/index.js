@@ -7,7 +7,6 @@ var app = new Vue({
         location: 0,
         database: [],
         thread: {},
-        new_thread: false,
     },
     methods: {
         find_by_id: function(id) {

@@ -86,6 +86,21 @@ if ( $_POST['action'] == "add_comment" )
     $title = $_POST['title'];
     $body = $_POST['body'];
     
+    // Если файл не ебического размера
+    if ( $_FILES['img']['size'] < 10000000 ) { 
+        $original_name = $_FILES['img']['name'];
+        $random_seed = rand(1000000, 9999999).date('now')."_";
+        $new_full_path = $img_dir . $random_seed . $original_name;
+        $new_server_path = '/images/' . $random_seed . $original_name;
+        $temp_name = $_FILES['img']['tmp_name'];
+        move_uploaded_file($temp_name, $new_full_path);
+    }
+    
+    // Если файла нет
+    if ( $_FILES['img']['size'] == 0 ) { 
+        $new_server_path = "no";
+    }
+    
     // Получаю массив из JSON и добавляю в него новое значение
     $data = file_get_contents( $database_filename );
     $data = json_decode($data, true);
@@ -96,6 +111,7 @@ if ( $_POST['action'] == "add_comment" )
     $new_item['title'] = $title;
     $new_item['body'] = $body;
     $new_item['parent'] = intval($location);
+    $new_item['img'] = $new_server_path;
 //    $new_item['updated'] = time();
     
     $data[] = $new_item;
@@ -109,7 +125,6 @@ if ( $_POST['action'] == "add_comment" )
 }
 
 // deleting a thread 
-// -> POST data with thread's id
 
 if ( $_POST['action'] == "delete_thread" )
 {
@@ -125,10 +140,12 @@ if ( $_POST['action'] == "delete_thread" )
         if($entry['id'] == $id) {
             unset($data[$index]);
         }
+        if($entry['parent'] == $id) {
+            unset($data[$index]);
+        }
     }
     
     // Преобразую массив обратно в JSON
-    // https://stackoverflow.com/questions/11722059/php-array-to-json-array-using-json-encode
     $data = array_values($data); 
     $data = json_encode($data, JSON_UNESCAPED_UNICODE);
     
